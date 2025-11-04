@@ -1,0 +1,92 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  color-scheme: dark;
+  --space-background: #050816;
+  --space-foreground: #f4f6ff;
+  --space-muted: #9da9d7;
+  --space-border: rgba(120, 136, 196, 0.35);
+  --space-card: rgba(17, 26, 55, 0.65);
+  --space-card-strong: rgba(40, 50, 94, 0.85);
+  --space-primary: #5b21b6;
+  --space-primary-soft: #7c3aed;
+  --space-highlight: rgba(91, 33, 182, 0.18);
+  --space-overlay:
+    radial-gradient(circle at 20% 20%, rgba(91, 33, 182, 0.2), transparent 60%),
+    radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.16), transparent 55%),
+    radial-gradient(circle at 50% 75%, rgba(16, 185, 129, 0.12), transparent 60%),
+    linear-gradient(180deg, rgba(5, 8, 22, 1) 0%, rgba(10, 14, 39, 1) 35%, rgba(15, 21, 53, 1) 100%);
+}
+
+html {
+  scroll-behavior: smooth;
+  font-feature-settings: "rlig" 1, "kern" 1;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--space-foreground);
+  background: var(--space-overlay), var(--space-background);
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(91, 33, 182, 0.45);
+  color: #ffffff;
+}
+
+a {
+  color: var(--space-primary);
+  transition: color 150ms ease-in-out;
+}
+
+a:hover,
+a:focus-visible {
+  color: var(--space-primary-soft);
+}
+
+.app-root {
+  background: transparent;
+  color: inherit;
+}
+
+.text-muted-foreground {
+  color: var(--space-muted);
+}
+
+.surface-card {
+  background: var(--space-card);
+  border: 1px solid var(--space-border);
+  border-radius: 1rem;
+  box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(18px);
+}
+
+.surface-card:is(:hover, :focus-within) {
+  border-color: rgba(124, 58, 237, 0.45);
+}
+
+.surface-accent {
+  background: var(--space-card-strong);
+  border: 1px solid rgba(124, 58, 237, 0.28);
+  border-radius: 1.5rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glow-ring {
+  position: relative;
+}
+
+.glow-ring::after {
+  content: "";
+  position: absolute;
+  inset: -0.35rem;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(91, 33, 182, 0.35), transparent 55%);
+  filter: blur(18px);
+  opacity: 0.65;
+  z-index: -1;
+}
