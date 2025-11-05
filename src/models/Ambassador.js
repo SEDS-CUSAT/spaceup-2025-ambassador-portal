@@ -20,6 +20,7 @@ const AmbassadorSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: true,
       trim: true,
     },
     college: {
@@ -48,9 +49,6 @@ const AmbassadorSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
-
-AmbassadorSchema.index({ email: 1 });
-AmbassadorSchema.index({ referralCode: 1 });
 
 const Ambassador = mongoose.models.Ambassador || mongoose.model("Ambassador", AmbassadorSchema);
 

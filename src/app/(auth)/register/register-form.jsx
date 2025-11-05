@@ -20,13 +20,10 @@ const formSchema = z.object({
     .email('Enter a valid email address')
     .max(140, 'Email is too long'),
   phone: z
-    .string()
+    .string({ required_error: 'Enter your phone number' })
     .trim()
-    .optional()
-    .refine((value) => {
-      if (!value) return true;
-      return /^[+\d][\d\s-]{7,}$/u.test(value);
-    }, 'Enter a valid phone number'),
+    .min(1, 'Enter your phone number')
+    .refine((value) => /^[+\d][\d\s-]{7,}$/u.test(value), 'Enter a valid phone number'),
   college: z
     .string({ required_error: 'Enter your college or institution' })
     .min(2, 'College name must have at least 2 characters')
@@ -129,7 +126,7 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-2 text-left md:col-span-1">
-        <Label htmlFor="phone">Phone (optional)</Label>
+        <Label htmlFor="phone">Phone</Label>
         <Input
           id="phone"
           type="tel"

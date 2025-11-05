@@ -13,6 +13,10 @@ export const metadata = {
   title: "SpaceUp Ambassador Portal",
   description:
     "Manage the SpaceUp ambassador program at SEDS CUSAT with real-time referrals, points, and profiles.",
+  icons: {
+    icon: "/SpaceUp-Icon.jpg",
+    shortcut: "/SpaceUp-Icon.jpg",
+  },
 };
 
 export default function RootLayout({ children }) {

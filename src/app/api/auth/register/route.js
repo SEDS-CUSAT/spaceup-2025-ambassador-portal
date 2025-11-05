@@ -32,9 +32,9 @@ export async function POST(request) {
     const email = payload?.email?.toLowerCase().trim();
     const password = payload?.password;
     const college = payload?.college?.trim();
-    const phone = payload?.phone?.trim() || "";
+  const phone = payload?.phone?.trim();
 
-    if (!name || !email || !password || !college) {
+    if (!name || !email || !password || !college || !phone) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 },
@@ -55,7 +55,7 @@ export async function POST(request) {
       );
     }
 
-    if (phone && !/^[+\d][\d\s-]{7,}$/u.test(phone)) {
+    if (!/^[+\d][\d\s-]{7,}$/u.test(phone)) {
       return NextResponse.json(
         { success: false, error: "Enter a valid phone number" },
         { status: 422 },
