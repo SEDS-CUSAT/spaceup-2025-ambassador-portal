@@ -23,12 +23,17 @@ export default function LoginPage() {
         <div className="surface-card p-8">
           <LoginForm />
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            New to the program?{" "}
-            <Link href="/register" className="font-medium text-white hover:text-[#d0b3ff]">
-              Create an account
+          <div className="mt-6 flex items-center justify-between text-sm">
+            <Link href="/" className="text-white/60 transition hover:text-white">
+              ← Back to home
             </Link>
-          </p>
+            <p className="text-muted-foreground">
+              New?{" "}
+              <Link href="/register" className="font-medium text-white hover:text-[#d0b3ff]">
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

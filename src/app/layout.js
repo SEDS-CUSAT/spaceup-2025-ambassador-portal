@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { AppHeader } from "@/components/shared/app-header";
 import { SonnerProvider } from "@/components/providers/sonner-provider";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -25,10 +26,11 @@ export default function RootLayout({ children }) {
       <body
         className={cn(
           "app-root antialiased",
-          "min-h-screen font-sans",
+          "min-h-screen bg-[#0a0e27] font-sans",
           inter.variable,
         )}
       >
+        <AppHeader />
         <div className="relative flex min-h-dvh flex-col">
           {children}
         </div>

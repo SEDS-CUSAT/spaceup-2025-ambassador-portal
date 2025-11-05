@@ -23,12 +23,17 @@ export default function RegisterPage() {
         <div className="surface-card p-10">
           <RegisterForm />
 
-          <p className="mt-8 text-center text-sm text-muted-foreground">
-            Already part of the network?{" "}
-            <Link href="/login" className="font-medium text-white hover:text-[#d0b3ff]">
-              Sign in instead
+          <div className="mt-8 flex items-center justify-between text-sm">
+            <Link href="/" className="text-white/60 transition hover:text-white">
+              ← Back to home
             </Link>
-          </p>
+            <p className="text-muted-foreground">
+              Have an account?{" "}
+              <Link href="/login" className="font-medium text-white hover:text-[#d0b3ff]">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

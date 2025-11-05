@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
@@ -55,7 +56,10 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-4 text-sm">
+        <Link href="/" className="text-white/60 transition hover:text-white">
+          ← Back to home
+        </Link>
         <LogoutButton />
       </div>
     </main>
