@@ -154,7 +154,10 @@ function LeaderboardRow({ entry }) {
           <p className="text-xs text-muted-foreground">{entry.college}</p>
         </div>
       </div>
-      <p className="text-sm font-semibold text-white">{entry.referrals}</p>
+      <p className="text-sm font-semibold text-white">
+        {/* {entry.referrals} */}
+        {/* Dont reveal for now */}
+      </p>
     </div>
   );
 }
