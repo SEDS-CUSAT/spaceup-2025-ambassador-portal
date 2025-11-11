@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,11 @@ const blockInvalidChar = (e) => ['e', 'E', '+', '-'].includes(e.key) && e.preven
 export default function AmbassadorDetail({ member }) {
   const [row, setRow] = useState(() => normalizeAmbassador(member));
   const [saving, setSaving] = useState(false);
+  const router = useRouter();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const memberId = row.id || member?.id;
 
   const imagePoints = useMemo(
     () =>
@@ -104,6 +110,9 @@ export default function AmbassadorDetail({ member }) {
       nextUploads[category] = nextUploads[category].map((item) => {
         if (item.public_id !== publicId) return item;
         if (field === "points") {
+          if (item.approval_status !== "verified") {
+            return item;
+          }
           if (value === "") {
             return { ...item, points: "" };
           }
@@ -114,7 +123,12 @@ export default function AmbassadorDetail({ member }) {
           return { ...item, points: numeric };
         }
         if (field === "approval_status") {
-          return { ...item, approval_status: value };
+          const nextStatus = value;
+          return {
+            ...item,
+            approval_status: nextStatus,
+            points: nextStatus === "verified" ? clampPoints(item.points) : 0,
+          };
         }
         return item;
       });
@@ -128,9 +142,7 @@ export default function AmbassadorDetail({ member }) {
   };
 
   const handleSave = async () => {
-    const targetId = row.id || member?.id;
-
-    if (!targetId) {
+    if (!memberId) {
       toast.error("Unable to determine member id");
       return;
     }
@@ -149,7 +161,7 @@ export default function AmbassadorDetail({ member }) {
     };
 
     try {
-      const res = await fetch(`/api/admin/ambassadors/${targetId}/points`, {
+      const res = await fetch(`/api/admin/ambassadors/${memberId}/points`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -164,6 +176,32 @@ export default function AmbassadorDetail({ member }) {
       toast.error(error.message || "Failed to save changes");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!memberId) {
+      toast.error("Unable to determine member id");
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/ambassadors/${memberId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Delete failed");
+
+      toast.success("Member profile deleted");
+      setDeleteOpen(false);
+      router.replace("/admin");
+      router.refresh();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete member");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -188,10 +226,20 @@ export default function AmbassadorDetail({ member }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <StatCard icon={Users} label="Referrals" value={row.totalReferrals} />
-            <StatCard icon={ImageIcon} label="Image Points" value={imagePoints} />
-            <StatCard icon={Plus} label="Manual Points" value={manualPoints} />
+          <div className="flex flex-col items-stretch gap-4 md:items-end">
+            <div className="grid grid-cols-3 gap-4">
+              <StatCard icon={Users} label="Referrals" value={row.totalReferrals} />
+              <StatCard icon={ImageIcon} label="Image Points" value={imagePoints} />
+              <StatCard icon={Plus} label="Manual Points" value={manualPoints} />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={() => setDeleteOpen(true)}
+              disabled={deleting}
+              className="border-rose-500/50 text-rose-300 hover:border-rose-400 hover:text-rose-100"
+            >
+              {deleting ? "Removing..." : "Remove member"}
+            </Button>
           </div>
         </div>
 
@@ -301,6 +349,36 @@ export default function AmbassadorDetail({ member }) {
           </aside>
         </div>
       </div>
+
+        {deleteOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 px-6">
+            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/90 p-6 shadow-xl">
+              <h2 className="text-xl font-semibold text-white">Delete member profile?</h2>
+              <p className="mt-2 text-sm text-blue-200/80">
+                This will remove all submissions and history for <span className="font-semibold text-white">{row.name}</span>.
+                Any associated uploads will be deleted. You cannot undo this action.
+              </p>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <Button
+                  variant="secondary"
+                  onClick={() => setDeleteOpen(false)}
+                  disabled={deleting}
+                  className="sm:min-w-[120px]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="bg-rose-600 hover:bg-rose-500 focus-visible:ring-rose-500 sm:min-w-[140px]"
+                >
+                  {deleting ? "Deleting..." : "Delete member"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
@@ -318,13 +396,19 @@ function StatCard({ icon: Icon, label, value }) {
 
 function UploadCard({ item, category, onUpdate, onCommit }) {
   const [imgError, setImgError] = useState(false);
+  const isVerified = item.approval_status === "verified";
 
   const handlePointsChange = (e) => {
+    if (!isVerified) return;
     const raw = e.target.value;
     onUpdate(category, item.public_id, "points", raw === "" ? "" : raw);
   };
 
   const handleBlur = (e) => {
+    if (!isVerified) {
+      onCommit(category, item.public_id, 0);
+      return;
+    }
     const raw = e.target.value;
     onCommit(category, item.public_id, raw === "" ? 0 : raw);
   };
@@ -376,8 +460,12 @@ function UploadCard({ item, category, onUpdate, onCommit }) {
             onChange={handlePointsChange}
             onBlur={handleBlur}
             onKeyDown={blockInvalidChar}
-            className="mt-1 h-9 border-white/20 bg-white/10 text-sm text-white focus:border-blue-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            disabled={!isVerified}
+            className="mt-1 h-9 border-white/20 bg-white/10 text-sm text-white focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-60 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
+          {!isVerified && (
+            <p className="mt-1 text-[11px] text-blue-300/70">Verify this upload before assigning points.</p>
+          )}
         </div>
 
         <div>

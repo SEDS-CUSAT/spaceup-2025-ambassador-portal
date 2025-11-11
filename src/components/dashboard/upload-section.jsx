@@ -109,10 +109,16 @@ export default function UploadSection({ userId, initialUploads = {} }) {
           <select
             value={selectedCategory}
             onChange={(event) => setSelectedCategory(event.target.value)}
-            className="w-full rounded-lg border border-white/15 bg-[#0f172a]/70 px-3 py-2 text-sm text-white focus:border-white/40 focus:outline-none"
+            className={`
+              w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 pr-10 text-sm text-white
+              focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400/30
+              transition-colors appearance-none
+              bg-[url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%3E%3Cpath%20fill%3D%22%234a90e2%22%20d%3D%22M0%2C0%20L12%2C0%20L6%2C8%20Z%22%2F%3E%3C%2Fsvg%3E")]
+              bg-no-repeat bg-position-[right_0.75rem_center] bg-size-[12px]
+            `}
           >
             {CATEGORY_CONFIG.map((category) => (
-              <option key={category.value} value={category.value}>
+              <option key={category.value} value={category.value} className="bg-slate-900 text-white">
                 {category.label}
               </option>
             ))}

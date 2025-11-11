@@ -96,7 +96,7 @@ export function RegisterForm() {
         <Label htmlFor="name">Full name</Label>
         <Input
           id="name"
-          placeholder="Alya Mathew"
+          placeholder="Alex Doe"
           autoComplete="name"
           {...register('name')}
           aria-invalid={Boolean(errors.name)}

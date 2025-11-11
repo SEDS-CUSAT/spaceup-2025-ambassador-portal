@@ -23,11 +23,11 @@ export default function LoginPage() {
         <div className="surface-card p-8">
           <LoginForm />
 
-          <div className="mt-6 flex items-center justify-between text-sm">
+          <div className="mt-6 flex items-center justify-center text-sm">
             {/* <Link href="/" className="text-white/60 transition hover:text-white">
               ← Back to home
             </Link> */}
-            <p className="text-muted-foreground">Ambassadors can request access from the core team.</p>
+            <p className="text-muted-foreground text-center">Contact <Link href="https://api.whatsapp.com/send/?phone=918590546651&text=I+forgot+my+password+for+the+SpaceUp+Ambassador+Portal&type=phone_number&app_absent=0" className="underline">support</Link> if password is forgotten.</p>
           </div>
         </div>
       </div>
