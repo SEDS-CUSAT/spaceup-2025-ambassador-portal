@@ -128,6 +128,13 @@ export default function AmbassadorDetail({ member }) {
   };
 
   const handleSave = async () => {
+    const targetId = row.id || member?.id;
+
+    if (!targetId) {
+      toast.error("Unable to determine member id");
+      return;
+    }
+
     setSaving(true);
     const payload = {
       manualPoints: clampPoints(row.manualPoints),
@@ -142,7 +149,7 @@ export default function AmbassadorDetail({ member }) {
     };
 
     try {
-      const res = await fetch(`/api/admin/ambassadors/${row.id}/points`, {
+      const res = await fetch(`/api/admin/ambassadors/${targetId}/points`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

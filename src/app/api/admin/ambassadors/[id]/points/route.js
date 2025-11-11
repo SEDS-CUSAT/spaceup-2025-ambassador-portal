@@ -15,7 +15,8 @@ function sanitizeNumber(input) {
   return value;
 }
 
-export async function PATCH(request, { params }) {
+export async function PATCH(request, context) {
+  const params = await context.params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
