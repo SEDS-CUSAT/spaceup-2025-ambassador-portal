@@ -12,11 +12,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-10">
         <div className="space-y-3 text-center">
           <span className="inline-flex items-center justify-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.26em] text-white/70 ring-1 ring-white/18">
-            Ambassador access
+            Portal access
           </span>
           <h1 className="text-3xl font-semibold">Welcome back</h1>
           <p className="text-sm text-muted-foreground">
-            Continue to your personalized dashboard to review referrals, points, and announcements.
+            Continue to your workspace—ambassadors see their stats, admins manage submissions.
           </p>
         </div>
 
@@ -24,15 +24,10 @@ export default function LoginPage() {
           <LoginForm />
 
           <div className="mt-6 flex items-center justify-between text-sm">
-            <Link href="/" className="text-white/60 transition hover:text-white">
+            {/* <Link href="/" className="text-white/60 transition hover:text-white">
               ← Back to home
-            </Link>
-            <p className="text-muted-foreground">
-              New?{" "}
-              <Link href="/register" className="font-medium text-white hover:text-[#d0b3ff]">
-                Sign up
-              </Link>
-            </p>
+            </Link> */}
+            <p className="text-muted-foreground">Ambassadors can request access from the core team.</p>
           </div>
         </div>
       </div>

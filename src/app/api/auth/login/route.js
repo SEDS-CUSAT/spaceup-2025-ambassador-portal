@@ -28,18 +28,18 @@ export async function POST(request) {
       );
     }
 
-    const ambassador = await authenticateCredentials({ email, password });
+    const user = await authenticateCredentials({ email, password });
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          id: ambassador._id.toString(),
-          email: ambassador.email,
-          name: ambassador.name,
-          referralCode: ambassador.referralCode,
-          totalReferrals: ambassador.totalReferrals ?? 0,
-          role: ambassador.role,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          referralCode: user.referralCode,
+          totalReferrals: user.totalReferrals ?? 0,
+          role: user.role,
         },
       },
       { status: 200 },

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
 import Ambassador from "@/models/Ambassador";
+import UploadSection from "@/components/dashboard/upload-section";
 import { CopyReferralButton } from "./copy-referral-button";
 import { LogoutButton } from "./logout-button";
 
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
 
   await connectDB();
   const ambassador = await Ambassador.findById(session.user.id)
-    .select("name referralCode totalReferrals")
+    .select("name referralCode totalReferrals whatsapp_status instagram_story whatsapp_group")
     .lean();
 
   if (!ambassador) {
@@ -32,10 +33,28 @@ export default async function DashboardPage() {
   const totalReferrals = ambassador.totalReferrals ?? 0;
   const name = ambassador.name ?? "Ambassador";
 
+  const serializeUploads = (entries = []) =>
+    entries.map((entry) => ({
+      url: entry.url,
+      public_id: entry.public_id,
+      approval_status: entry.approval_status ?? "pending",
+      points: typeof entry.points === "number" ? entry.points : 0,
+      uploadedAt:
+        entry.uploadedAt instanceof Date
+          ? entry.uploadedAt.toISOString()
+          : entry.uploadedAt ?? new Date().toISOString(),
+    }));
+
+  const initialUploads = {
+    whatsapp_status: serializeUploads(ambassador.whatsapp_status),
+    instagram_story: serializeUploads(ambassador.instagram_story),
+    whatsapp_group: serializeUploads(ambassador.whatsapp_group),
+  };
+
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col gap-8 px-6 py-16 sm:px-10">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-10 px-4 py-16 sm:px-8 lg:px-12">
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">SpaceUp Portal</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/60">SpaceUp Ambassador Portal</p>
         <h1 className="text-3xl font-semibold text-white">Welcome back, {name.split(' ')[0]}.</h1>
         <p className="text-sm text-muted-foreground">
           Copy your referral code, check totals, and you&apos;re good to go.
@@ -55,6 +74,8 @@ export default async function DashboardPage() {
           <p className="mt-3 text-3xl font-semibold text-white">{totalReferrals}</p>
         </div>
       </section>
+
+      <UploadSection userId={session.user.id} initialUploads={initialUploads} />
 
       <div className="flex items-center justify-between gap-4 text-sm">
         <Link href="/" className="text-white/60 transition hover:text-white">
