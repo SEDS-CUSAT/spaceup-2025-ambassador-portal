@@ -30,13 +30,19 @@ const STATUS_COLORS = {
   rejected: "text-rose-400",
 };
 
+const clampPoints = (value) => {
+  const numeric = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(numeric)) return 0;
+  return Math.max(0, Math.min(5, Math.round(numeric)));
+};
+
 function normalizeResponseEntry(entry) {
   return {
     url: entry.url,
     public_id: entry.public_id,
     uploadedAt: entry.uploadedAt,
     approval_status: entry.approval_status,
-    points: typeof entry.points === "number" ? entry.points : Number(entry.points) || 0,
+    points: clampPoints(entry.points),
   };
 }
 
@@ -66,15 +72,30 @@ export default function AmbassadorDetail({ member }) {
   const [saving, setSaving] = useState(false);
 
   const imagePoints = useMemo(
-    () => Object.values(row.uploads).flat().reduce((total, item) => total + item.points, 0),
+    () =>
+      Object.values(row.uploads).flat().reduce((total, item) => {
+        const numeric = typeof item.points === "number" ? item.points : Number(item.points) || 0;
+        return total + numeric;
+      }, 0),
     [row.uploads]
   );
-  const manualPoints = row.manualPoints || 0;
+  const manualPoints = typeof row.manualPoints === "number" ? row.manualPoints : Number(row.manualPoints) || 0;
   const totalPoints = imagePoints + manualPoints;
 
-  const updateManualPoints = (value) => {
-    const numeric = Number.isFinite(value) ? Math.min(Math.max(0, value), 5) : 0;
+  const handleManualInput = (rawValue) => {
+    if (rawValue === "") {
+      setRow((prev) => ({ ...prev, manualPoints: "" }));
+      return;
+    }
+
+    const numeric = Number(rawValue);
+    if (!Number.isFinite(numeric)) return;
+
     setRow((prev) => ({ ...prev, manualPoints: numeric }));
+  };
+
+  const commitManualPoints = () => {
+    setRow((prev) => ({ ...prev, manualPoints: clampPoints(prev.manualPoints) }));
   };
 
   const updateUploadField = (category, publicId, field, value) => {
@@ -83,7 +104,13 @@ export default function AmbassadorDetail({ member }) {
       nextUploads[category] = nextUploads[category].map((item) => {
         if (item.public_id !== publicId) return item;
         if (field === "points") {
-          const numeric = Number.isFinite(value) ? Math.min(Math.max(0, value), 5) : 0;
+          if (value === "") {
+            return { ...item, points: "" };
+          }
+
+          const numeric = Number(value);
+          if (!Number.isFinite(numeric)) return item;
+
           return { ...item, points: numeric };
         }
         if (field === "approval_status") {
@@ -95,15 +122,20 @@ export default function AmbassadorDetail({ member }) {
     });
   };
 
+  const commitUploadPoints = (category, publicId, value) => {
+    const clamped = clampPoints(value);
+    updateUploadField(category, publicId, "points", clamped);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     const payload = {
-      manualPoints: row.manualPoints,
+      manualPoints: clampPoints(row.manualPoints),
       imageUpdates: Object.entries(row.uploads).flatMap(([type, items]) =>
         items.map((item) => ({
           type,
           public_id: item.public_id,
-          points: item.points,
+          points: clampPoints(item.points),
           approval_status: item.approval_status,
         }))
       ),
@@ -140,7 +172,7 @@ export default function AmbassadorDetail({ member }) {
               </Button>
             </Link>
             <div>
-              <p className="text-sm uppercase tracking-widest text-blue-300">Ambassador Profile</p>
+              <p className="text-sm uppercase tracking-widest text-blue-300">Member Profile</p>
               <h1 className="mt-1 text-3xl font-bold tracking-tight">{row.name}</h1>
               <p className="mt-1 text-sm text-blue-200">
                 {row.email} • {row.phone}
@@ -182,6 +214,7 @@ export default function AmbassadorDetail({ member }) {
                           item={item}
                           category={type}
                           onUpdate={updateUploadField}
+                          onCommit={commitUploadPoints}
                         />
                       ))}
                     </div>
@@ -213,13 +246,11 @@ export default function AmbassadorDetail({ member }) {
                     min={0}
                     max={5}
                     step={1}
-                    value={row.manualPoints}
-                    onChange={(e) => {
-                      const val = e.target.valueAsNumber;
-                      updateManualPoints(isNaN(val) ? 0 : val);
-                    }}
+                    value={row.manualPoints === "" ? "" : row.manualPoints}
+                    onChange={(e) => handleManualInput(e.target.value)}
+                    onBlur={commitManualPoints}
                     onKeyDown={blockInvalidChar}
-                    className="mt-2 border-white/20 bg-white/10 text-white placeholder:text-blue-400 focus:border-blue-400"
+                    className="mt-2 border-white/20 bg-white/10 text-white placeholder:text-blue-400 focus:border-blue-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
 
@@ -278,13 +309,17 @@ function StatCard({ icon: Icon, label, value }) {
   );
 }
 
-function UploadCard({ item, category, onUpdate }) {
+function UploadCard({ item, category, onUpdate, onCommit }) {
   const [imgError, setImgError] = useState(false);
 
   const handlePointsChange = (e) => {
-    const val = e.target.valueAsNumber;
-    const clamped = isNaN(val) ? 0 : Math.min(Math.max(0, val), 5);
-    onUpdate(category, item.public_id, "points", clamped);
+    const raw = e.target.value;
+    onUpdate(category, item.public_id, "points", raw === "" ? "" : raw);
+  };
+
+  const handleBlur = (e) => {
+    const raw = e.target.value;
+    onCommit(category, item.public_id, raw === "" ? 0 : raw);
   };
 
   return (
@@ -330,10 +365,11 @@ function UploadCard({ item, category, onUpdate }) {
             min={0}
             max={5}
             step={1}
-            value={item.points}
+            value={item.points === "" ? "" : item.points}
             onChange={handlePointsChange}
+            onBlur={handleBlur}
             onKeyDown={blockInvalidChar}
-            className="mt-1 h-9 border-white/20 bg-white/10 text-sm text-white focus:border-blue-400"
+            className="mt-1 h-9 border-white/20 bg-white/10 text-sm text-white focus:border-blue-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
         </div>
 
