@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "example-env": "node ./scripts/example-env-gen.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
