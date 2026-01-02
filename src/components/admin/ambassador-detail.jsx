@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Save, Upload, Users, Image as ImageIcon, Plus } from "lucide-react";
+import { ImageCarouselModal } from "./image-carousel-modal";
 
 const CATEGORY_LABELS = {
   whatsapp_status: "WhatsApp Status",
@@ -74,6 +75,9 @@ export default function AmbassadorDetail({ member }) {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalImages, setModalImages] = useState([]);
+  const [modalInitialIndex, setModalInitialIndex] = useState(0);
 
   const memberId = row.id || member?.id;
 
@@ -205,6 +209,12 @@ export default function AmbassadorDetail({ member }) {
     }
   };
 
+  const handleImageClick = (category, index) => {
+    setModalImages(row.uploads[category]);
+    setModalInitialIndex(index);
+    setModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-950 via-blue-950 to-slate-950 text-white">
       <div className="mx-auto max-w-7xl space-y-8 p-6 lg:p-8">
@@ -263,13 +273,15 @@ export default function AmbassadorDetail({ member }) {
                 <CardContent>
                   {items.length ? (
                     <div className="grid gap-4 sm:grid-cols-2">
-                      {items.map((item) => (
+                      {items.map((item, index) => (
                         <UploadCard
                           key={item.public_id}
                           item={item}
                           category={type}
+                          index={index}
                           onUpdate={updateUploadField}
                           onCommit={commitUploadPoints}
+                          onImageClick={handleImageClick}
                         />
                       ))}
                     </div>
@@ -379,6 +391,13 @@ export default function AmbassadorDetail({ member }) {
             </div>
           </div>
         )}
+
+        <ImageCarouselModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          images={modalImages}
+          initialIndex={modalInitialIndex}
+        />
     </div>
   );
 }
@@ -394,7 +413,7 @@ function StatCard({ icon: Icon, label, value }) {
   );
 }
 
-function UploadCard({ item, category, onUpdate, onCommit }) {
+function UploadCard({ item, category, index, onUpdate, onCommit, onImageClick }) {
   const [imgError, setImgError] = useState(false);
   const isVerified = item.approval_status === "verified";
 
@@ -432,7 +451,10 @@ function UploadCard({ item, category, onUpdate, onCommit }) {
         </time>
       </div>
 
-      <div className="relative aspect-video overflow-hidden bg-black/20">
+      <div 
+        className="relative aspect-video overflow-hidden bg-black/20 cursor-pointer"
+        onClick={() => onImageClick(category, index)}
+      >
         {imgError ? (
           <div className="flex h-full items-center justify-center">
             <ImageIcon className="h-10 w-10 text-blue-500" />
