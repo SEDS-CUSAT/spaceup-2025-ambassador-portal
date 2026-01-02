@@ -42,8 +42,8 @@ export default function UploadSection({ userId, initialUploads = {} }) {
       toast.error('Only images allowed');
       return;
     }
-    if (picked.size > 5 * 1024 * 1024) {
-      toast.error('Max file size is 5MB');
+    if (picked.size > 1.5 * 1024 * 1024) {
+      toast.error('Max file size is 1.5MB');
       return;
     }
     setFile(picked);

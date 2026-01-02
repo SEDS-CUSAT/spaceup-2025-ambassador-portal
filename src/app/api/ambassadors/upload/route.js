@@ -46,9 +46,9 @@ export async function POST(request) {
   }
 
   const size = file.size ?? 0;
-  const MAX = 5 * 1024 * 1024; // 5MB
+  const MAX = 1.5 * 1024 * 1024; // 1.5MB
   if (size > MAX) {
-    return NextResponse.json({ success: false, error: "File too large (max 5MB)" }, { status: 413 });
+    return NextResponse.json({ success: false, error: "File too large (max 1.5MB)" }, { status: 413 });
   }
 
   try {
