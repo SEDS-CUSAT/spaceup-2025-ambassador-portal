@@ -36,6 +36,9 @@ export async function POST(req) {
       });
     }
 
+    // Delete any existing reset tokens for this user
+    await ResetToken.deleteMany({ userId: user._id });
+
     // Generate token
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
