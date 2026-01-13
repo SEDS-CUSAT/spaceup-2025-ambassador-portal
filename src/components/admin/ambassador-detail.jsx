@@ -35,7 +35,7 @@ const STATUS_COLORS = {
 const clampPoints = (value) => {
   const numeric = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(numeric)) return 0;
-  return Math.max(0, Math.min(5, Math.round(numeric)));
+  return Math.max(0, Math.min(10, Math.round(numeric)));
 };
 
 function normalizeResponseEntry(entry) {
@@ -305,13 +305,13 @@ export default function AmbassadorDetail({ member }) {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="manual-points" className="text-sm text-blue-300">
-                    Add/Adjust Points (0–5)
+                    Add/Adjust Points (0–10)
                   </Label>
                   <Input
                     id="manual-points"
                     type="number"
                     min={0}
-                    max={5}
+                    max={10}
                     step={1}
                     value={row.manualPoints === "" ? "" : row.manualPoints}
                     onChange={(e) => handleManualInput(e.target.value)}
@@ -472,11 +472,11 @@ function UploadCard({ item, category, index, onUpdate, onCommit, onImageClick })
 
       <div className="space-y-3 p-4">
         <div>
-          <Label className="text-xs text-blue-300">Points (0–5)</Label>
+          <Label className="text-xs text-blue-300">Points (0–10)</Label>
           <Input
             type="number"
             min={0}
-            max={5}
+            max={10}
             step={1}
             value={item.points === "" ? "" : item.points}
             onChange={handlePointsChange}
